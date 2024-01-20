@@ -1,6 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router';
 
-import Home from '../views/index.vue'; 
+import Pdv from '../views/index.vue'; 
 import store from '../store';
 import Dre from '../views/relatorios/Dre.vue'
 import Terminal from '../views/relatorios/Terminal.vue'
@@ -17,7 +17,7 @@ import GerenciarVendas from '../views/gerencia/GerenciaVendas.vue'
 // app.use(createRouter);
 
 const routes = [
-    { path: '/', name: 'Home', component: Home },
+    { path: '/pdv', name: 'Home', component: Pdv },
     {
         path: '/auth/login',
         name: 'login',

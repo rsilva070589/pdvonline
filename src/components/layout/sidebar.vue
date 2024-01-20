@@ -50,7 +50,7 @@
                         
                          
                         <li>
-                            <router-link to="/" @click="toggleMobileMenu">
+                            <router-link to="/pdv" @click="toggleMobileMenu">
                                 {{ $t('Frente Caixa') }}
                             </router-link>
                         </li>

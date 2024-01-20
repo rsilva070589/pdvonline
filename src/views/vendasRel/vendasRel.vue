@@ -1,8 +1,20 @@
 <template>
     <div class="layout-px-spacing" style="margin-top: 0px; margin-left: -20px;">
-        <h2 class="text-2xl font-medium mx-2" data-testid="statements-title-txt">Ticket Médio de Vendas</h2>
-        <div> 
-</div>
+        <div style="display: flex;">        
+        <div>
+            <h2 class="text-2xl font-medium mx-2" data-testid="statements-title-txt">Ticket Médio de Vendas</h2>
+        </div>
+        <div >
+        <input class="form-control" style="height: 44px; width: 110px;  margin: 3px;" playload="mm/yyyy" type="text" v-model="store.mesSelecionado">
+        </div>        
+        <div class="btn btn-primary" style="height: 40px; width: 100px; margin: 3px;" @click="GetVendas()">
+         Buscar
+        </div> 
+    </div>             
+ 
+
+    
+
  
 <Progress v-if="store.recursos.progress" />
  
@@ -328,49 +340,8 @@
     });
 
     const bind_data = async  () => {
-        store.itensRelVendas = []
-
-        let data = JSON.stringify({
-            "SCHEMA":   storeLogin.empresas?.schema  
-            });
-
-            let config = {
-            method: 'post',
-            maxBodyLength: Infinity,
-            url: store.baseApiHTTPS+'/relvendas',
-            headers: { 
-                'Content-Type': 'application/json'
-            },
-            data : data
-            };
-
-            axios.request(config)
-            .then((response) => { 
-            response.data.map(x =>{
-                const dados = { 
-                    ID: x.id,
-                    DATA: x.data,
-                    CATGO: x.categoria,
-                    PRODUTO: x.cod_produto,
-                    NOME: x.nome,
-                    QTDE: x.qtde,
-                    NOME: x.nome, 
-                    VLR: x.valor,
-                    CUSTO: x.custo,
-                    LUCRO: arredonda(x.lucro,2),
-                    PERC_LUCRO: arredonda(x.perc_lucro,2),
-                    FORMA_PGTO: x.forma_pgto,
-                    MES: x.mes,
-                    TIPO_VENDA: x.tipo_venda
-                }
-                store.itensRelVendas.push(dados)
-            })
-            })
-            .catch((error) => {
-            console.log(error);
-            });
- 
-        
+        store.mesSelecionado = dataAtualMes(new Date())
+     
 
        store.itensCategoria = []
 
@@ -407,6 +378,8 @@
 
        
        getCagetorias()
+
+
         
        
 
@@ -417,6 +390,54 @@
     };
  
     store.displayVendasCategoria = 'Diario'
+
+    const GetVendas = ()=> {
+        
+            store.itensRelVendas = []
+            store.recursos.progress = true
+            let data = JSON.stringify({
+            "SCHEMA":   storeLogin.empresas?.schema,
+            "MES":         store.mesSelecionado
+            });
+
+            let config = {
+            method: 'post',
+            maxBodyLength: Infinity,
+            url: store.baseApiHTTPS+'/relvendas',
+            headers: { 
+                'Content-Type': 'application/json'
+            },
+            data : data
+            };
+
+            axios.request(config)
+            .then((response) => { 
+            response.data.map(x =>{
+                const dados = { 
+                    ID: x.id,
+                    DATA: x.data,
+                    CATGO: x.categoria,
+                    PRODUTO: x.cod_produto,
+                    NOME: x.nome,
+                    QTDE: x.qtde,
+                    NOME: x.nome, 
+                    VLR: x.valor,
+                    CUSTO: x.custo,
+                    LUCRO: arredonda(x.lucro,2),
+                    PERC_LUCRO: arredonda(x.perc_lucro,2),
+                    FORMA_PGTO: x.forma_pgto,
+                    MES: x.mes,
+                    TIPO_VENDA: x.tipo_venda
+                }
+                store.itensRelVendas.push(dados)
+                store.recursos.progress = false
+            })
+            })
+            .catch((error) => {
+            console.log(error);
+            });
+ 
+        }
 
 
 </script>

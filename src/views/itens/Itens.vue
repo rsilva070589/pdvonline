@@ -402,7 +402,7 @@
         console.log('NOMENCLATURA '+ store.cadastroProduto.NOMENCLATURA)
         
     var data = 
-    JSON.stringify ( { 
+    JSON.stringify ( {  "SCHEMA": storeLogin.empresas?.schema ,
                         "ID": id, 
                         "CATEGORIA":   store.cadastroProduto.CATEGORIA     , 
                         "CODIGO_BARRAS": store.cadastroProduto.CODIGO_BARRAS, 
@@ -443,6 +443,7 @@
     console.log(store.cadastroProduto.AMBIENTE)
 var data = JSON.stringify( 
             {  
+                "SCHEMA": storeLogin.empresas?.schema ,
             "CATEGORIA":   store.cadastroProduto.CATEGORIA     , 
             "ID_CATEGORIA":   store.cadastroProduto.ID_CATEGORIA     , 
             "CODIGO_BARRAS": store.cadastroProduto.CODIGO_BARRAS, 
@@ -495,7 +496,7 @@ axios(config)
     store.editando = false
     store.cadastroProduto.ID=0
     
-    var data =   {"ID" : props.ID}  
+    var data =   {"ID" : props.ID, "SCHEMA": storeLogin.empresas?.schema }  
 
                 var config = {
                 method: 'delete',

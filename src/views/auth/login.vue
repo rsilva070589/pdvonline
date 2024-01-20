@@ -161,7 +161,7 @@
                     console.log(JSON.stringify(response.data[0]));  
                     storeLogin.empresas = response.data[0]                
                 // storeLogin.empresas.dadosempresa.push(response.data)
-                    router.push('/') 
+                    router.push('/pdv') 
                  }else{
                     store.alertLogin=true
                  }   

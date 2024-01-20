@@ -81,7 +81,7 @@
    
    <script setup>
     import Progress from '@/components/Progress.vue';
-       import {indexStore} from '../../store/indexStore' 
+       import {indexStore,useUserStore} from '../../store/indexStore' 
        import { onMounted, ref } from 'vue';
        import axios from 'axios'
        import { useMeta } from '@/composables/use-meta';
@@ -89,23 +89,50 @@
        useMeta({ title: 'Multiple Tables' });
        const store = indexStore(); 
        const code_arr = ref([]); 
-   
+       const storeLogin = useUserStore();
     
      onMounted(() => {
+        store.itensRelVendas = []
            bind_data();
        });
    
        const bind_data = async  () => { 
    
           store.formasPagamentos = []
-          var result = await axios.get(store.baseApiHTTPS+'/formapagamento')  
-          result.data.map(x=> {
-           const itens ={
-               ID: x.id, 
-               DESCRICAO: x.descricao
-          }
-          store.formasPagamentos.push(itens)
-          }) 
+          const getFormasPgto = ()=> {
+                let data = JSON.stringify({
+            "SCHEMA": storeLogin.empresas?.schema 
+            });
+
+            let config = {
+            method: 'post',
+            maxBodyLength: Infinity,
+            url: store.baseApiHTTPS+'/GetFormapagamento',
+            headers: { 
+                'Content-Type': 'application/json'
+            },
+            data : data
+            };
+
+            axios.request(config)
+            .then((response) => { 
+            response.data.map(x=> {
+                    const itens ={
+                        ID: x.id,
+                        DESCRICAO: x.descricao,
+                        PERCENTUAL: x.taxa         
+                }
+                store.formasPagamentos.push(itens)
+                }) 
+            })
+            .catch((error) => {
+            console.log(error);
+            });
+            }
+
+            getFormasPgto()
+
+
            store.recursos.progress = false
    
        }
@@ -115,7 +142,8 @@
    
            let data = JSON.stringify({
            "DATAINI": dataIni,
-           "DATAFIM": dataFim
+           "DATAFIM": dataFim,
+           "SCHEMA": storeLogin.empresas?.schema 
            });
    
            let config = {
@@ -235,12 +263,12 @@
     store.editando = false
     store.cadastroProduto.ID=0
     
-    var data =   {"ID" : props.ID}  
+    var data =   {"ID" : props.ID, "SCHEMA": storeLogin.empresas?.schema }  
 
                 var config = {
                 method: 'delete',
                 maxBodyLength: Infinity,
-                url:  store.baseApiHTTPS+'/vendas/'+props.ID,
+                url:  store.baseApiHTTPS+'/vendas' ,
                 headers: { 
                     'Content-Type': 'application/json'
                 },
@@ -249,8 +277,8 @@
 
                 axios(config)
                 .then(function (response) {
-                console.log(JSON.stringify(response.data));
-                bind_data()
+                    getVendas(tomorrow(store.filtro.dataInicial),tomorrow(store.filtro.dataFinal))
+ 
                 })
                 .catch(function (error) {
                 console.log(error);
