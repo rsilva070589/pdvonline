@@ -1,5 +1,5 @@
 <template> 
-    <div class="layout-px-spacing" style="margin-top: -100px;">
+    <div class="layout-px-spacing" style="margin-top: 0px;">
         <h2 class="text-2xl font-medium mx-2" data-testid="statements-title-txt">Demanda Mensal de Produtos</h2>
         <div> 
 </div>
@@ -59,13 +59,14 @@
 
 <script setup>
     import Progress from '@/components/Progress.vue';
-    import {indexStore} from '../../store/IndexStore' 
+    import {indexStore,useUserStore} from '../../store/indexStore' 
     import { onMounted, ref } from 'vue';
     import axios from 'axios'
     import { useMeta } from '@/composables/use-meta';
     useMeta({ title: 'Multiple Tables' });
     const store = indexStore(); 
     const code_arr = ref([]);
+    const storeLogin = useUserStore();
     //table 1
 
     store.recursos.progress = true
@@ -122,13 +123,40 @@
 
     const bind_data = async  () => {
         store.itensRelDemanda = []
-      var result = await axios.get(store.baseApiHTTPS+'/demanda') 
+ 
    // var result = await axios.get('http://localhost:4141/demanda') 
       
-    
+   //"SCHEMA": storeLogin.empresas?.schema 
         //table 2 
-        store.itensRelDemanda =  result.data        
-        store.recursos.progress = false
+
+      const getDemanda = ()=> {
+        let data = JSON.stringify({
+         "SCHEMA": "MERCEARIABRAGATTO"
+            });
+
+            let config = {
+            method: 'post',
+            maxBodyLength: Infinity,
+            url: store.baseApiHTTPS+'/demanda',
+            headers: { 
+                'Content-Type': 'application/json'
+            },
+            data : data
+            };
+
+            axios.request(config)
+            .then((response) => { 
+            store.itensRelDemanda = response.data
+            store.recursos.progress = false
+            })
+            .catch((error) => {
+            console.log(error);
+            });
+      }
+      getDemanda()
+         
+ 
+        
 
     }
    

@@ -43,7 +43,7 @@
 </template>
 
 <script setup> 
- import {indexStore} from '../../store/IndexStore'  
+ import {indexStore} from '../../store/indexStore'  
   import   axios from 'axios';
   const store      = indexStore();  
   

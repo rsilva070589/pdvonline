@@ -1,5 +1,5 @@
 <template>
- <div style="margin-top: -90px;">
+ <div style="margin-top: 0px;">
         <div style="font-size: 35px;">
             Fechamento Caixa
         </div> 
@@ -56,14 +56,15 @@
 </template>
 
 <script setup>
- import Progress from '@/components/Progress.vue';
-    import {indexStore} from '../../store/IndexStore' 
+    import Progress from '@/components/Progress.vue';
+    import {indexStore,useUserStore} from '../../store/indexStore' 
     import { onMounted, ref } from 'vue';
     import axios from 'axios'
     import { useMeta } from '@/composables/use-meta';
     import Filtros from './Filtros.vue'
     useMeta({ title: 'Multiple Tables' });
-    const store = indexStore(); 
+    const store = indexStore();
+    const storeLogin = useUserStore();
     const code_arr = ref([]); 
 
  
@@ -74,24 +75,48 @@
     const bind_data = async  () => { 
 
        store.formasPagamentos = []
-       var result = await axios.get(store.baseApiHTTPS+'/formapagamento')  
-       result.data.map(x=> {
-        const itens ={
-            ID: x.id, 
-            DESCRICAO: x.descricao
-       }
-       store.formasPagamentos.push(itens)
-       }) 
+       const getFormasPgto = ()=> {
+                let data = JSON.stringify({
+            "SCHEMA": storeLogin.empresas?.schema 
+            });
+
+            let config = {
+            method: 'post',
+            maxBodyLength: Infinity,
+            url: store.baseApiHTTPS+'/GetFormapagamento',
+            headers: { 
+                'Content-Type': 'application/json'
+            },
+            data : data
+            };
+
+            axios.request(config)
+            .then((response) => { 
+            response.data.map(x=> {
+                    const itens ={
+                        ID: x.id,
+                        DESCRICAO: x.descricao,
+                        PERCENTUAL: x.taxa         
+                }
+                store.formasPagamentos.push(itens)
+                }) 
+            })
+            .catch((error) => {
+            console.log(error);
+            });
+            }
+
+            getFormasPgto()
         store.recursos.progress = false
 
     }
 
     function getVendas(dataIni, dataFim){
-        store.itensRelVendas = []
-
+        store.itensRelVendas = [] 
         let data = JSON.stringify({
         "DATAINI": dataIni,
-        "DATAFIM": dataFim
+        "DATAFIM": dataFim,
+        "SCHEMA": storeLogin.empresas?.schema 
         });
 
         let config = {

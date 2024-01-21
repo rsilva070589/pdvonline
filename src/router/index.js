@@ -10,6 +10,8 @@ import Vendas from '../views/vendasRel/vendasRel.vue'
 import Produtos from '../views/itens/Itens.vue'
 import FormaPagamento from '../views/formaPagamento/FormaPagamento.vue'
 import GerenciarVendas from '../views/gerencia/GerenciaVendas.vue'
+import Caixa from '../views/caixa/Caixa.vue'
+import Demanda from '../views/demanda/Demanda.vue'
 
 // Vue.use(VueRouter);
 // import { createApp } from 'vue';
@@ -31,6 +33,8 @@ const routes = [
     { path: '/Produtos', name: 'Produtos', component: Produtos },
     { path: '/FormaPgto', name: 'FormaPgto', component: FormaPagamento },
     { path: '/gervendas', name: 'Gervendas', component: GerenciarVendas },
+    { path: '/caixa', name: 'caixa', component: Caixa }, 
+    { path: '/demanda', name: 'demanda', component: Demanda }, 
 
  
 ]
