@@ -250,7 +250,7 @@
       }
  
       function totalMes(dtfilter) { 
-        var arr =  store.itensRelVendas.filter(f => f.MES == dataAtualMes(new Date()) && f.TIPO_VENDA=='NORMAL') 
+        var arr =  store.itensRelVendas.filter(f =>   f.TIPO_VENDA=='NORMAL') 
         var sum = 0; 
         for(var i =0;i<arr.length;i++){ 
           sum+=arr[i].VLR; 
@@ -260,7 +260,7 @@
       }
 
       function lucroMes(dtfilter) { 
-        var arr =  store.itensRelVendas.filter(f => f.MES == dataAtualMes(new Date()) && f.TIPO_VENDA=='NORMAL') 
+        var arr =  store.itensRelVendas.filter(f => f.TIPO_VENDA=='NORMAL') 
         var sum = 0; 
         for(var i =0;i<arr.length;i++){ 
           sum+=arr[i].LUCRO; 

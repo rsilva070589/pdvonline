@@ -16,7 +16,7 @@ import * as bootstrap from 'bootstrap';
 window.bootstrap = bootstrap;
 
 // modals
-import '@/assets/sass/components/custom-modal.scss';
+//import '@/assets/sass/components/custom-modal.scss';
 
 // perfect scrollbar
 import PerfectScrollbar from 'vue3-perfect-scrollbar';
