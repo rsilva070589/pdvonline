@@ -1,5 +1,5 @@
 <template> 
- 
+  {{store.CaixaProdutos}}
  
 <div style="display: flex; 
         justify-content: space-between; font-size: 40px; ">
@@ -164,13 +164,6 @@ Qtde:
 
 </div>
  
-
-
-  
-
-  
-  
-
 </template>
 
 <script setup>
@@ -186,7 +179,7 @@ store.VendaEnviada = false
 store.formaPagamento = false
 store.produtos = []
 store.produtoSearch = ''
-const produtos = [ ]
+const produtos = []
 store.tipoVenda = 'NORMAL'
  
 const getProdutos = (async () => { 
@@ -217,7 +210,8 @@ const getProdutos = (async () => {
             SITUACAO: x.situacao,
             VALOR: x.valor,
             VALOR_CUSTO: x.valor_custo,
-            QTDE_ESTOQUE: x.qtde_estoque
+            QTDE_ESTOQUE: x.qtde_estoque,
+            ID: x.id
        }
        produtos.push(itens)
        store.produtos.push(itens)
@@ -227,7 +221,7 @@ const getProdutos = (async () => {
       console.log(error);
     }); 
 
-  })
+})
  
  getProdutos()
 
@@ -278,6 +272,7 @@ var incluirProduto = (codProduto) => {
  
   const ItemSelectCaixa = p => p.CODIGO_BARRAS == codProduto
   const item  = produtos.filter(ItemSelectCaixa)
+  let valorDesconto = store.CaixaProdutos.DESCONTO || 0 
   
 console.log(item)
   if (item[0]?.CODIGO_BARRAS == codProduto) { 
@@ -286,8 +281,9 @@ console.log(item)
                 NOME: item[0]?.NOME,
                 QTDE: store.CaixaProdutos.QTDE,
                 VALOR: item[0]?.VALOR * store.CaixaProdutos.QTDE,
-                DESCONTO: store.CaixaProdutos.DESCONTO,
-                CUSTO:  item[0]?.VALOR_CUSTO * store.CaixaProdutos.QTDE               
+                DESCONTO: valorDesconto.toString().replace(',','.'),
+                CUSTO:  item[0]?.VALOR_CUSTO * store.CaixaProdutos.QTDE,
+                ID_PRODUTO: item[0].ID || 0
     })
    
     
@@ -315,10 +311,9 @@ function somaCaixa() {
 }
  
 
- const addVenda = async () => {
+const addVenda = async () => {
   if (store.CaixaProdutos.length > 0 &&  store.formaPagamento) { 
- 
-   
+    
 var data = {   
       SCHEMA: storeLogin.empresas?.schema  ,
       COD_CLIENTE: 999,
@@ -349,7 +344,7 @@ axios(config)
 .then(function (response) {
   console.log(JSON.stringify(response.data));
   store.CaixaProdutos = []
-  window.location.href = window.location.href
+  //window.location.href = window.location.href
 })
 .catch(function (error) {
   console.log(error);

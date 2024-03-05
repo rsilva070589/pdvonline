@@ -19,7 +19,7 @@ import Demanda from '../views/demanda/Demanda.vue'
 // app.use(createRouter);
 
 const routes = [
-    { path: '/pdv', name: 'Home', component: Pdv },
+    { path: '/', name: 'Home', component: Pdv },
     {
         path: '/auth/login',
         name: 'login',
