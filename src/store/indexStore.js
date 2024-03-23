@@ -29,8 +29,8 @@ export const indexStore = defineStore("rotas", () =>{
    //const baseApiHTTPS  = 'https://json-replace-oracle-production.up.railway.app'
    
    //const baseApiHTTPS  = 'http://192.168.1.103:4141'
-   //const baseApiHTTPS  = 'https://agiltecsistemas.com.br:4141'
-   const baseApiHTTPS  = 'http://192.168.1.110:4141'
+   const baseApiHTTPS  = 'https://agiltecsistemas.com.br:4141'
+   //const baseApiHTTPS  = 'http://192.168.1.110:4141'
    
 
    //const baseApiHTTPS  = 'http://35.226.231.200:4040'
