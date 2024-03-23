@@ -17,13 +17,13 @@
                         <div class="form-container">
                             <div class="form-content">
                                 <h1 class="">Login</h1>
-                                <p class="">Entre com seu email e senha</p>
+                                <p class="">Entre com seu usuario e senha</p>
     
                                 <form class="text-start">
                                    
                                     <div class="form">
                                         <div id="username-field" class="field-wrapper input">
-                                            <label for="username">EMAIL</label>
+                                            <label for="username">Usuario</label>
                                             <svg
                                                 xmlns="http://www.w3.org/2000/svg"
                                                 width="24"
@@ -41,8 +41,8 @@
                                             </svg>
                                             <input type="text" 
                                                     class="form-control" 
-                                                    placeholder="email" 
-                                                    v-model="storeLogin.email" />
+                                                    placeholder="usuario" 
+                                                    v-model="storeLogin.usuario" />
                                         </div>
     
                                         <div id="password-field" class="field-wrapper input mb-2">
@@ -88,7 +88,28 @@
                                             </svg>
                                         </div>
                                     
-    
+                                        <div id="username-field" class="field-wrapper input">
+                                            <label for="schema">Empresa</label>
+                                            <svg
+                                                xmlns="http://www.w3.org/2000/svg"
+                                                width="24"
+                                                height="24"
+                                                viewBox="0 0 24 24"
+                                                fill="none"
+                                                stroke="currentColor"
+                                                stroke-width="2"
+                                                stroke-linecap="round"
+                                                stroke-linejoin="round"
+                                                class="feather feather-user"
+                                            >
+                                                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                                                <circle cx="12" cy="7" r="4"></circle>
+                                            </svg>
+                                            <input type="text" 
+                                                    class="form-control" 
+                                                    placeholder="schema" 
+                                                    v-model="storeLogin.schema" />
+                                        </div>
                                       
                                       
                                       
@@ -109,9 +130,9 @@
                 </div>
             </div>
         </div>
-    </template>
+</template>
     
-    <script setup>
+<script setup>
         import { ref } from 'vue';
         import '@/assets/sass/authentication/auth-boxed.scss';
         import { indexStore, useUserStore } from '../../store/indexStore' 
@@ -139,8 +160,10 @@
         const getLogin = ()=> {
            
                 let data = JSON.stringify({
-                "email": storeLogin.email,
-                "senha": storeLogin.senha
+                    "SCHEMA": storeLogin.schema,
+                "USUARIO": storeLogin.usuario,
+                "SENHA": storeLogin.senha,
+               
                 });
     
                 let config = {

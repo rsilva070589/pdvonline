@@ -12,20 +12,21 @@
         </div> 
     </div>             
  
-
-    
-
  
 <Progress v-if="store.recursos.progress" />
  
 
 <div v-if="!store.recursos.progress">
-    <div  style="display: flex;
+    <div 
+        
+        style="display: flex;
         flex-wrap: wrap; 
                         margin: 15px 0px 15px 0px;
                     ">
 
-                    <div class="card" style="padding: 10px; width: 200px;height: 120px;border-radius: 10px;
+           <div 
+           v-if="storeLogin.empresas.acessos.filter(f=> f.cod_acesso == 'A0001').length > 0"
+           class="card" style="padding: 10px; width: 200px;height: 120px;border-radius: 10px;
                                     align-items: center; margin: 0px 20px 15px 0px;">
             <span style="font-size: 25px; color: black;">
                 Total Mês
@@ -35,7 +36,9 @@
             </div>
          </div>
 
-         <div class="card" style="padding: 10px;  width: 200px; height: 120px; 
+         <div 
+         v-if="storeLogin.empresas.acessos.filter(f=> f.cod_acesso == 'A0001').length > 0"
+         class="card" style="padding: 10px;  width: 200px; height: 120px; 
                                  border-radius: 10px; align-items: center;
                                  margin: 0px 20px 15px 0px;
                                  background-color: ;
@@ -79,7 +82,9 @@
             
          </div> 
 
-         <div class="card" style="padding: 10px; width: 200px;height: 
+         <div 
+         v-if="storeLogin.empresas.acessos.filter(f=> f.cod_acesso == 'A0001').length > 0"
+            class="card" style="padding: 10px; width: 200px;height: 
                                 120px;border-radius: 10px; align-items: center;
                                 margin: 0px 20px 15px 0px;
                                 
@@ -307,11 +312,19 @@
             var soma = (lucro * 100)
             return soma
       }
-     
-    
+
+      var columns1 = []
+   
+      if(storeLogin.empresas.acessos.filter(f=> f.cod_acesso == 'A0001').length > 0){
+         columns1 =  ['ID','DATA','CATGO','PRODUTO','NOME','QTDE','VLR','CUSTO','LUCRO','PERC_LUCRO','FORMA_PGTO' ]
+
+      }else{
+        columns1 =  ['ID','DATA','CATGO','PRODUTO','NOME','QTDE','VLR','FORMA_PGTO' ]
+      }
+   
 
     //table 2
-    const columns1 = ref( ['ID','DATA','CATGO','PRODUTO','NOME','QTDE','VLR','CUSTO','LUCRO','PERC_LUCRO','FORMA_PGTO' ]);
+    
     const items1 = store.itensRelVendas;
     const table_option1 = ref({
         perPage: 10,

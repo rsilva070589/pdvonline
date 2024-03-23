@@ -1,6 +1,13 @@
 <template>
 
-<div style="margin-top: 0px;">
+<div v-if="!storeLogin.empresas.acessos.filter(f=> f.cod_acesso == 'A0001').length > 0"
+style="color: red; font-size: 20px;"
+>
+ USUARIO NAO TEM ACESSO
+</div>
+
+<div v-if="storeLogin.empresas.acessos.filter(f=> f.cod_acesso == 'A0001').length > 0"
+style="margin-top: 0px;">
     <div v-if="store.itensDetalhe">
         <ItensDetalhe />
     </div> 

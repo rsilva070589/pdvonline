@@ -14,7 +14,9 @@
         <span style="font-size: 10px; 
                       color: green; 
                       background-color: white;"
-              @click="store.recursos.telaCaixaConfirmar=true"
+              @click="store.recursos.telaCaixaConfirmar=true;
+                  store.saldoPgto = store.somaCaixa
+              "
               >
           Confirmar
         </span>
@@ -29,12 +31,6 @@
 
 import {indexStore} from '../../store/indexStore' 
 const store = indexStore(); 
-
- 
-
- 
-
- 
 
 </script>
 

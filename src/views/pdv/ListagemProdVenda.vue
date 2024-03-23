@@ -1,5 +1,4 @@
-<template> 
-  {{store.CaixaProdutos}}
+<template>   
  
 <div style="display: flex; 
         justify-content: space-between; font-size: 40px; ">
@@ -43,10 +42,13 @@ style="   padding: 5px;
   
 
 </div> 
+
   
 
    
-  <div class="conteudo"
+  <div 
+  v-if="!store.recursos.telaCaixaConfirmar"
+  class="conteudo"
    style="background-color: white;  
               min-width: 70%; 
               height: 77.0vh;
@@ -119,30 +121,130 @@ Qtde:
   />
 
 
-</div>
-    <div 
+</div> 
+  </div>
+
+  <div  v-if="store.recursos.telaCaixaConfirmar"
+       style=" font-size:15px ;
+         "
+  @click="store.recursos.telaCaixaConfirmar = false">
+  <button>Voltar</button>
+  </div>
+
+ <div 
        style="background-color: rgb(0, 132, 255); color: rgb(3, 0, 0); 
-              padding: 10px; text-align: center; display: flex;
+              padding: 15px; text-align: center; display: flex;
               margin: 10px;
               justify-content: center;
               font-size: 20px;
+              min-width: 70%;
+
               " 
       v-if="store.recursos.telaCaixaConfirmar">
-
  
-
-      <div>
-       <select v-model="store.formaPagamento">
-        <option v-for="pg, indexPg in store.formasPagamentos" :key="indexPg"
-                :value="pg.ID">  
+<div style="padding: 20px; ">
+ 
+ <div style="padding: 10px;"  > 
+       <select  v-model="store.formaPagamento">
+        <option  v-for="pg, indexPg in store.formasPagamentos" :key="indexPg"
+                :value="pg">  
           {{pg.DESCRICAO}}
         </option> 
        </select>
-      </div>
+ </div>
+ <div > 
+   Valor R$ <input style="width: 100px;"  
+          v-model="store.saldoPgto" type="text" >
+   </div>
+  
 
+</div>      
+
+<div 
+style="margin-top: 50px; padding: 10px;"
+@click="store.formasPgtoVenda.push({cod_forma_pgto: store.formaPagamento.ID,
+                                          descricao: store.formaPagamento.DESCRICAO,
+                                          valor:  store.saldoPgto});
+                                          saldoPgto()
+                                          ">
+  
+<svg fill="#000000" version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" 
+	 width="40px" height="40px" viewBox="0 0 199.405 199.405"
+	 xml:space="preserve">
+<g>
+	<polygon points="99.703,199.405 199.405,99.702 99.703,0 71.418,28.285 124.662,81.529 0,81.529 0,117.876 124.662,117.876 
+		71.418,171.12 	"/>
+</g>
+</svg>
+    </div>
+
+<div>
  
-    <div>
-      Valor do Dinheiro: <input style="text-align: center;width: 70px; padding: 5px;" v-model="store.vendaCaixa.valorPago"  
+  <div  
+  class="conteudo"
+   style="background-color: white;  
+              min-width: 30%; 
+             width: 400px;
+             height: 200px;
+             margin-top: 20px;
+              padding-right: 0px;">
+    <div style="display: flex;  
+        justify-content: space-between;  
+        "  
+        v-for=" (p,index) in store.formasPgtoVenda" :key="index"
+        > 
+ 
+        <div style="font-size: 20px;  ">
+       {{ p.cod_forma_pgto }}-{{p.descricao}}
+    </div>
+    <div style="font-size: 20px;  ">
+       R$ {{store.formataDinheiro(p.valor,2)  }}
+    </div>
+
+    <div style=" ">
+      <svg 
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            class="feather feather-trash-2 icon"
+            @click="deletePgto(index);saldoPgto()"
+        >
+            <polyline points="3 6 5 6 21 6"></polyline>
+            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+            <line x1="10" y1="11" x2="10" y2="17"></line>
+            <line x1="14" y1="11" x2="14" y2="17"></line>
+        </svg>
+    </div>
+     
+  </div>  
+
+  </div>
+
+    <div  
+    
+      style="background-color: cornsilk;  
+              min-width: 30%; "
+      >
+      SOMA DE PGTO: R$ {{somaValor(store.formasPgtoVenda.map(x => x.valor))- somaCaixa() + somaCaixa() }}
+    </div>
+
+    <div  
+      style="background-color: #0866B8;  
+              min-width: 30%; "
+      >
+      FALTA: R$ {{somaValor(store.formasPgtoVenda.map(x => x.valor))- somaCaixa()}}
+    </div>
+
+
+
+      <div>
+      Calcular Troco: <input style="text-align: center;width: 70px; padding: 5px;" v-model="store.vendaCaixa.valorPago"  
                           type="number" 
                           placeholder="valor Dinheiro">  
     </div> 
@@ -151,16 +253,15 @@ Qtde:
       TROCO: {{store.formataDinheiro(store.vendaCaixa.valorPago - somaCaixa(),2) }}
     </div>
 
-    <div style="padding:8px;">
+    <div 
+    v-if="somaValor(store.formasPgtoVenda.map(x => x.valor)) ==  somaCaixa()"
+    style="padding:8px;">
       <button @click="addVenda">VENDER</button>
     </div>
-   
+</div>      
+
    
   </div>
-
-  </div>
-
-  
 
 </div>
  
@@ -172,6 +273,11 @@ import {indexStore, useUserStore} from '../../store/indexStore'
 import axios from 'axios'
 const store = indexStore(); 
 const storeLogin = useUserStore();
+
+store.formasPgtoVenda = []
+
+
+ 
 
 store.CaixaProdutos.QTDE = 1
 store.CaixaProdutos.DESCONTO=0
@@ -265,6 +371,11 @@ getFormasPgto()
     store.CaixaProdutos.splice(index, 1);
     somaCaixa() 
  }
+
+ const deletePgto = (index) => {
+    console.log(index)
+    store.formasPgtoVenda.splice(index, 1);
+ }
  
  
 var incluirProduto = (codProduto) => {
@@ -289,11 +400,8 @@ console.log(item)
     
     somaCaixa() 
      store.CaixaProdutos.QTDE=1
-    store.CaixaProdutos.DESCONTO=0
-   
-  }
-
-    
+    store.CaixaProdutos.DESCONTO=0   
+  }    
 }
 
 
@@ -311,6 +419,20 @@ function somaCaixa() {
 }
  
 
+function somaValor(array) { 
+  var arr =  array     
+  var sum = 0; 
+  for(var i =0;i<arr.length;i++){ 
+    sum+=arr[i]; 
+  }     
+  return (sum)
+}
+
+function saldoPgto(){  
+    store.saldoPgto= somaCaixa() - somaValor(store.formasPgtoVenda.map(x => x.valor))    
+}
+ 
+
 const addVenda = async () => {
   if (store.CaixaProdutos.length > 0 &&  store.formaPagamento) { 
     
@@ -322,8 +444,9 @@ var data = {
       TROCO: store.vendaCaixa.valorTroco, 
       DESCONTO: store.vendaCaixa.descontos,
       ITENS: store.CaixaProdutos,
-      FORMA_PGTO: store.formaPagamento,
-      TIPO_VENDA: store.tipoVenda
+      FORMA_PGTO: 1,
+      TIPO_VENDA: store.tipoVenda,
+      PGTO: store.formasPgtoVenda
     }
 
 console.log(data)
@@ -345,6 +468,15 @@ axios(config)
   console.log(JSON.stringify(response.data));
   store.CaixaProdutos = []
   //window.location.href = window.location.href
+  store.somaCaixa = 0
+  store.formaPagamento = false
+  store.produtoSearch = '' 
+       store.CaixaProdutos.QTDE=1
+    store.CaixaProdutos.DESCONTO=0
+    store.recursos.telaCaixaConfirmar = false
+  showMessage('venda realizada com sucesso.');
+  store.formasPgtoVenda = []
+  store.vendaCaixa.valorPago = 0
 })
 .catch(function (error) {
   console.log(error);
@@ -352,6 +484,21 @@ axios(config)
 
 
 }} 
+
+
+const showMessage = (msg = '', type = 'success') => {
+        const toast = window.Swal.mixin({
+            toast: true,
+            position: 'top',
+            showConfirmButton: false,
+            timer: 3000,
+        });
+        toast.fire({
+            icon: type,
+            title: msg,
+            padding: '10px 20px',
+        });
+    };
 
 
 </script>

@@ -1,5 +1,4 @@
-<template>
- 
+<template> 
     <div style="margin-top: -50px;">
            <div style="font-size: 35px;">
                Gerencia de Vendas
@@ -173,7 +172,8 @@
                        PERC_LUCRO: arredonda(x.perc_lucro,2),
                        FORMA_PGTO: x.forma_pgto,
                        MES: x.mes,
-                       TIPO_VENDA: x.tipo_venda
+                       TIPO_VENDA: x.tipo_venda,
+                       ITENS: x.itens
                    } 
                    store.itensRelVendas.push(dados)
                })
@@ -260,10 +260,13 @@
      }
        
      function deleteItem(props){
+        console.log(props)
     store.editando = false
     store.cadastroProduto.ID=0
+ 
     
-    var data =   {"ID" : props.ID, "SCHEMA": storeLogin.empresas?.schema }  
+    
+    var data =   {"ID" : props.ID, "SCHEMA": storeLogin.empresas?.schema, "ITENS": props.ITENS }  
 
                 var config = {
                 method: 'delete',
@@ -283,7 +286,7 @@
                 .catch(function (error) {
                 console.log(error);
                 });
-
+ 
  }
        
    </script>
