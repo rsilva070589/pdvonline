@@ -1,12 +1,10 @@
 <template>
-<div style="margin-top: -100px">
-    <div style="font-size: 40px; color: black;">
-        Dashboard
-    </div>
-    
+ 
+
+<div style="margin-top: 0px">   
     <div style="display: flex;  ">
         <Filtros />
-        <div    v-if="store.filtro.dataInicial && store.filtro.dataFinal"
+        <div     v-if="store.filtro.dataInicial && store.filtro.dataFinal"
                 style="margin-top: 17px;">
             <div style="background-color: rgb(153, 193, 134);
                     margin-top: 35px;
@@ -19,11 +17,12 @@
             </div>
         </div> 
     </div>
-    <div>
-        
+    <div> 
+</div>
 
-            
-    </div>
+
+
+
     <div v-for="mes,indexMes in []" :key="indexMes">
         {{mes}} - {{ formataDinheiro(somaValor(store.itensRelVendas.filter(f=> f.DATA == mes).map(x => x.VALOR))) }}   
     </div>   
@@ -58,11 +57,12 @@
                     </div>
 
                     <div class="widget-content">
-                        <apex-chart v-if="unique_visitor_options" height="350" type="bar" 
+                        <apex-chart  v-if="unique_visitor_options" height="350" type="bar" 
                             :options="unique_visitor_options" 
-                            :series=" [{name: 'mes' ,data: store.relAnual.map(x => x.total)}]  "
+                            :series=" [{name: 'Vendas' ,data: store.relAnual?.map(x => x.total)},{name: 'Lucro' ,data: store.relAnualLucro?.map(x => x.total)}]  "
                             >
                         </apex-chart>
+
                     </div>
                 </div>
             </div>
@@ -72,51 +72,77 @@
 </template>
 
 <script setup> 
- import Progress from '@/components/Progress.vue';
-    import {indexStore} from '../../store/IndexStore' 
+    import Progress from '@/components/Progress.vue';   
     import { onMounted, ref, computed } from 'vue';
     import axios from 'axios'
     import { useMeta } from '@/composables/use-meta';
-    import Filtros from './Filtros.vue'
+    // import Filtros from './Filtros.vue'
     import ApexChart from 'vue3-apexcharts';  
-    useMeta({ title: 'Multiple Tables' });
-    const store = indexStore(); 
+    import {indexStore, useUserStore} from '../../store/indexStore'
+    import Filtros from './Filtros.vue'
+    useMeta({ title: 'Multiple Tables' }); 
     const code_arr = ref([]); 
-    store.relAnual = []
-    store.anoSelecionado = dataAno(new Date())
+    const store = indexStore(); 
+    const storeLogin = useUserStore();
 
-  onMounted(() => {
-        bind_data();
-        
+    store.relAnual = []
+    store.anoSelecionado = dataAno(new Date()) 
+ 
+
+    onMounted(() => {
+        bind_data(); 
     });
 
     const bind_data = async  () => { 
-
-       store.formasPagamentos = []
-       var result = await axios.get(store.baseApiHTTPS+'/formapagamento')  
-       result.data.map(x=> {
-        const itens ={
-            ID: x.id, 
-            DESCRICAO: x.descricao
-       }
-       store.formasPagamentos.push(itens)
-       }) 
-        store.recursos.progress = false
-
+        getFormasPgto()
     }
+
+    store.formasPagamentos = []
+
+const getFormasPgto = () => {
+      let data = JSON.stringify({
+  "SCHEMA": storeLogin.empresas?.schema 
+  });
+
+  let config = {
+  method: 'post',
+  maxBodyLength: Infinity,
+  url: store.baseApiHTTPS+'/GetFormapagamento',
+  headers: { 
+      'Content-Type': 'application/json'
+  },
+  data : data
+  };
+
+  axios.request(config)
+  .then((response) => { 
+  response.data.map(x=> {
+          const itens = {
+              ID: x.id,
+              DESCRICAO: x.descricao,
+              PERCENTUAL: x.taxa         
+             }
+      store.formasPagamentos.push(itens)
+      }) 
+  })
+  .catch((error) => {
+  console.log(error);
+  });
+  }
 
     function getVendas(dataIni, dataFim){
         store.itensRelVendas = []
 
         let data = JSON.stringify({
         "DATAINI": dataIni,
-        "DATAFIM": dataFim
+        "DATAFIM": dataFim,
+        "SCHEMA": 'MERCEARIABRAGATTO'
         });
 
         let config = {
         method: 'post',
         maxBodyLength: Infinity,
-        url: store.baseApiHTTPS+'/periodovendas',
+        url: store.baseApiHTTPS+'/dashboard',
         headers: { 
             'Content-Type': 'application/json'
         },
@@ -126,20 +152,16 @@
         axios.request(config)
         .then((response) => {
             response.data.filter(f=> f.tipo_venda=='NORMAL').map(x =>{
+    
                 const dados = { 
                     ID: x.id,
-                    MES: dataMes(x.data),
-                    ANO: dataAno(x.data),
+                    MES: x.data.substring(3,5),
+                    ANO: x.data.substring(6,10),
                     CATGO: x.categoria,
-                    PRODUTO: x.cod_produto,
-                    NOME: x.nome,
-                    QTDE: x.qtde,
-                    NOME: x.nome, 
+                    PRODUTO: x.cod_produto, 
                     VALOR: x.valor,
                     CUSTO: x.custo,
-                    LUCRO: arredonda(x.lucro,2),
-                    PERC_LUCRO: arredonda(x.perc_lucro,2),
-                    FORMA_PGTO: x.forma_pgto,
+                    LUCRO: arredonda(x.lucro,2), 
                     TIPO_VENDA: x.tipo_venda
                 } 
                 store.itensRelVendas.push(dados)
@@ -177,15 +199,7 @@
                .replace(/(\d)(?=(\d{3})+\,)/g, "$1.");
         }
 
-   function dataMes(d){ 
-        var data =  new Date(d),
-            dia  = data.getDate().toString(),
-            diaF = (dia.length == 1) ? '0'+dia : dia,
-            mes  = (data.getMonth()+1).toString(), //+1 pois no getMonth Janeiro começa com zero.
-            mesF = (mes.length == 1) ? '0'+mes : mes,
-            anoF = data.getFullYear();
-        return mesF 
-        }
+  
 
         function dataAno(d){ 
         var data =  new Date(d),
@@ -287,61 +301,96 @@
             total: formataDinheiro(somaValor(store.itensRelVendas.filter(f=> f.MES == '12' && f.ANO==store.anoSelecionado).map(x => x.VALOR)))
         }
     ]  
+    store.relAnualLucro = [
+        {
+            mes: 'janeiro',
+            total: formataDinheiro(somaValor(store.itensRelVendas.filter(f=> f.MES == '01' && f.ANO==store.anoSelecionado).map(x => x.LUCRO)))
+        },
+        {
+            mes: 'fevereiro',
+            total: formataDinheiro(somaValor(store.itensRelVendas.filter(f=> f.MES == '02' && f.ANO==store.anoSelecionado).map(x => x.LUCRO)))
+        },
+        {
+            mes: 'marco',
+            total: formataDinheiro(somaValor(store.itensRelVendas.filter(f=> f.MES == '03' && f.ANO==store.anoSelecionado).map(x => x.LUCRO)))
+        },
+        {
+            mes: 'abril',
+            total: formataDinheiro(somaValor(store.itensRelVendas.filter(f=> f.MES == '04' && f.ANO==store.anoSelecionado).map(x => x.LUCRO)))
+        },
+        {
+            mes: 'maio',
+            total: formataDinheiro(somaValor(store.itensRelVendas.filter(f=> f.MES == '05' && f.ANO==store.anoSelecionado).map(x => x.LUCRO)))
+        },
+        {
+            mes: 'junho',
+            total: (somaValor(store.itensRelVendas.filter(f=> f.MES == '06' && f.ANO==store.anoSelecionado).map(x => x.LUCRO)))
+        },
+        {
+            mes: 'julho',
+            total: formataDinheiro(somaValor(store.itensRelVendas.filter(f=> f.MES == '07' && f.ANO==store.anoSelecionado).map(x => x.LUCRO)))
+        },
+        {
+            mes: 'agosto',
+            total: formataDinheiro(somaValor(store.itensRelVendas.filter(f=> f.MES == '08' && f.ANO==store.anoSelecionado).map(x => x.LUCRO)))
+        },
+        {
+            mes: 'setembro',
+            total: formataDinheiro(somaValor(store.itensRelVendas.filter(f=> f.MES == '09' && f.ANO==store.anoSelecionado).map(x => x.LUCRO)))
+        },
+        {
+            mes: 'outubro',
+            total: formataDinheiro(somaValor(store.itensRelVendas.filter(f=> f.MES == '10' && f.ANO==store.anoSelecionado).map(x => x.LUCRO)))
+        },
+        {
+            mes: 'novembro',
+            total: formataDinheiro(somaValor(store.itensRelVendas.filter(f=> f.MES == '11' && f.ANO==store.anoSelecionado).map(x => x.LUCRO)))
+        },
+        {
+            mes: 'desembro',
+            total: formataDinheiro(somaValor(store.itensRelVendas.filter(f=> f.MES == '12' && f.ANO==store.anoSelecionado).map(x => x.LUCRO)))
+        }
+    ]  
   }
    
+ 
+const options_3 =  computed(() => {
+    return {
+        chart: { toolbar: { show: false } }, 
+        dataLabels: { enabled: false },
+        stroke: { show: true, width: 2, 
+        colors: ['transparent'] },
+        plotOptions: { bar: { horizontal: false, columnWidth: '55%', borderRadius: 8 }, },
+        xaxis: { categories: ['Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct'], },
+        yaxis: { title: { text: '$ (thousands)' } },
+        fill: { opacity: 1 },
+        tooltip: { y: { formatter: function (val) { return "$ " + val + " thousands" } } }
+    }
   
-    
-
+})
+ 
 
   const unique_visitor_options = computed(() => {
         
-        return {
-            chart: { height: 350,      type: 'bar'},
-            dataLabels: { enabled: !store.detectar_mobile(), formatter: function (val) {return "R$ " +(val) },
+       return {
+        chart: { toolbar: { show: false } }, 
+         dataLabels: { enabled: !store.detectar_mobile(), formatter: function (val) {return "R$ " +(val) },
               offsetY: -20,
               style: {
                 fontSize: '11px',
-                colors: ["#888EA8"]
+                colors: ["#000000"]
               }              
             },
-             
-            colors: ['#5c1ac3'],
-            
-           
-
-            plotOptions: {
-              bar: {
-                columnWidth: '90%',
-                borderRadius: 0,
-                dataLabels: {
-                  position: 'top', // top, center, bottom
-                },
-              }
-            },
-            legend: { position: 'bottom', horizontalAlign: 'center', fontSize: '14px', markers: { width: 12, height: 12 }, itemMargin: { horizontal: 7, vertical: 8 } },
-            grid: { borderColor:  '#e0e6ed' },
-            xaxis: {
-                categories: ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'],
-                axisBorder: { show: true, color:   '#e0e6ed' },
-                
-            },
-            yaxis: {
-                tickAmount: 6,
-            },
-            fill: {
-                type: 'gradient',
-                gradient: { shade:  'light', type: 'vertical', shadeIntensity: 0.3, inverseColors: false, opacityFrom: 1, opacityTo: 0.8, stops: [0, 100] },
-            },
-            tooltip: {
-                theme:  'light',
-                y: {
-                    formatter: function (val) {
-                        return val;
-                    },
-                },
-            },
-        };
+        stroke: { show: true, width: 2, 
+        colors: ['transparent'] },
+        plotOptions: { bar: { horizontal: false, columnWidth: '55%', borderRadius: 8 }, },
+        xaxis: { categories: [ 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct'], },
+        yaxis: { title: { text: '$ (thousands)' } },
+        fill: { opacity: 1 },
+        tooltip: { y: { formatter: function (val) { return "$ " + val + " thousands" } } }
+       }
     });
+
 
      
     

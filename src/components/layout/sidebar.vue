@@ -259,7 +259,7 @@
                     <ul id="dashboard" class="collapse submenu list-unstyled" data-bs-parent="#sidebar">
                          
                         <li>
-                            <router-link to="/" @click="toggleMobileMenu">
+                            <router-link to="/dashboard" @click="toggleMobileMenu">
                                 {{ $t('analytics') }}
                             </router-link>
                         </li>
@@ -343,9 +343,11 @@
 </template>
 
 <script setup>
-    import { onMounted, ref } from 'vue';
-    import { useStore } from 'vuex';
-    const store = useStore();
+    import { onMounted, ref } from 'vue'; 
+   // import { indexStore, useUserStore } from '../../store/indexStore' 
+ 
+  //  const storeLogin = useUserStore();
+  //  const store = useStore();
 
     const menu_collapse = ref('dashboard');
 

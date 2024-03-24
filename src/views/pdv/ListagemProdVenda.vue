@@ -1,4 +1,5 @@
 <template>   
+ {{ store.confirmarVendaTime }}
  
 <div style="display: flex; 
         justify-content: space-between; font-size: 40px; ">
@@ -145,16 +146,20 @@ Qtde:
 <div style="padding: 20px; ">
  
  <div style="padding: 10px;"  > 
-       <select  v-model="store.formaPagamento">
-        <option  v-for="pg, indexPg in store.formasPagamentos" :key="indexPg"
-                :value="pg">  
+       <select  v-model="store.formaPagamento"
+       
+       >
+        <option 
+        
+        v-for="pg, indexPg in store.formasPagamentos" :key="indexPg"
+                :value="{pgto: pg, index: indexPg}">  
           {{pg.DESCRICAO}}
         </option> 
        </select>
  </div>
  <div > 
    Valor R$ <input style="width: 100px;"  
-          v-model="store.saldoPgto" type="text" >
+          v-model="store.saldoPgto" type="number" >
    </div>
   
 
@@ -162,10 +167,13 @@ Qtde:
 
 <div 
 style="margin-top: 50px; padding: 10px;"
-@click="store.formasPgtoVenda.push({cod_forma_pgto: store.formaPagamento.ID,
-                                          descricao: store.formaPagamento.DESCRICAO,
-                                          valor:  store.saldoPgto});
-                                          saldoPgto()
+@click="store.formasPgtoVenda.push({cod_forma_pgto: store.formaPagamento.pgto.ID,
+                                          descricao: store.formaPagamento.pgto.DESCRICAO,
+                                          valor:  store.saldoPgto, 
+                                        });
+                                        store.formasPagamentos.splice(store.formaPagamento.index,1)
+                                          saldoPgto();
+                                                                                   
                                           ">
   
 <svg fill="#000000" version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" 
@@ -231,7 +239,7 @@ style="margin-top: 50px; padding: 10px;"
       style="background-color: cornsilk;  
               min-width: 30%; "
       >
-      SOMA DE PGTO: R$ {{somaValor(store.formasPgtoVenda.map(x => x.valor))- somaCaixa() + somaCaixa() }}
+      SOMA DE PGTO: R$ {{somaValor(store.formasPgtoVenda.map(x => x.valor))  }}
     </div>
 
     <div  
@@ -254,7 +262,9 @@ style="margin-top: 50px; padding: 10px;"
     </div>
 
     <div 
-    v-if="somaValor(store.formasPgtoVenda.map(x => x.valor)) ==  somaCaixa()"
+    v-if="somaValor(store.formasPgtoVenda.map(x => x.valor)) ==  somaCaixa() 
+    && store.confirmarVendaTime
+    "
     style="padding:8px;">
       <button @click="addVenda">VENDER</button>
     </div>
@@ -287,6 +297,10 @@ store.produtos = []
 store.produtoSearch = ''
 const produtos = []
 store.tipoVenda = 'NORMAL'
+
+store.confirmarVendaTime = true
+ 
+ 
  
 const getProdutos = (async () => { 
   let data = JSON.stringify({
@@ -374,6 +388,7 @@ getFormasPgto()
 
  const deletePgto = (index) => {
     console.log(index)
+    store.formasPagamentos.push({ID: store.formasPgtoVenda[index].cod_forma_pgto, DESCRICAO: store.formasPgtoVenda[index].descricao})
     store.formasPgtoVenda.splice(index, 1);
  }
  
@@ -433,9 +448,11 @@ function saldoPgto(){
 }
  
 
-const addVenda = async () => {
-  if (store.CaixaProdutos.length > 0 &&  store.formaPagamento) { 
-    
+const addVenda = async () => {  
+ 
+  if (store.CaixaProdutos.length > 0 &&  store.formaPagamento && store.confirmarVendaTime) { 
+    store.confirmarVendaTime=false
+
 var data = {   
       SCHEMA: storeLogin.empresas?.schema  ,
       COD_CLIENTE: 999,
@@ -461,7 +478,7 @@ var config = {
   data : data
 };
 
-store.VendaEnviada=true
+ 
 
 axios(config)
 .then(function (response) {
@@ -475,13 +492,15 @@ axios(config)
     store.CaixaProdutos.DESCONTO=0
     store.recursos.telaCaixaConfirmar = false
   showMessage('venda realizada com sucesso.');
+  store.confirmarVendaTime = true
   store.formasPgtoVenda = []
   store.vendaCaixa.valorPago = 0
 })
 .catch(function (error) {
   console.log(error);
+  store.confirmarVendaTime = true
 });
-
+   
 
 }} 
 

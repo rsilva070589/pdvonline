@@ -79,7 +79,7 @@
    </template>
    
    <script setup>
-    import Progress from '@/components/Progress.vue';
+       import Progress from '@/components/Progress.vue';
        import {indexStore,useUserStore} from '../../store/indexStore' 
        import { onMounted, ref } from 'vue';
        import axios from 'axios'
