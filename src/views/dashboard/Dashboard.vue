@@ -384,7 +384,7 @@ const options_3 =  computed(() => {
         stroke: { show: true, width: 2, 
         colors: ['transparent'] },
         plotOptions: { bar: { horizontal: false, columnWidth: '55%', borderRadius: 8 }, },
-        xaxis: { categories: [ 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct'], },
+        xaxis: { categories: [ 'Janeiro', 'Fevereiro', 'Marco', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro','Outubro','Novembro','Dezembro'], },
         yaxis: { title: { text: '$ (thousands)' } },
         fill: { opacity: 1 },
         tooltip: { y: { formatter: function (val) { return "$ " + val + " thousands" } } }
